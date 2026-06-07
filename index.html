@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queseyo Community - Torneos Futuristas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <div class="logo-container">
+            <img src="img/logo.png" alt="Queseyo Community Logo" class="main-logo">
+        </div>
+    </header>
+
+    <main class="content-container">
+
+        <section id="screen-menu" class="app-screen">
+            <h2 class="welcome-title">SELECCIONÁ UNA OPCIÓN</h2>
+            <div class="menu-grid">
+                <div class="menu-card card-cyan" onclick="changeScreen('screen-config')">
+                    <div class="card-icon"><i class="fa-solid fa-gear"></i></div>
+                    <h3>TORNEOS PERSONALIZADOS</h3>
+                    <p>Creá tu propio campeonato desde cero. Vos elegís los equipos, el formato y las reglas.</p>
+                </div>
+                <div class="menu-card card-pink" onclick="changeScreen('screen-real-tournaments')">
+                    <div class="fa-solid fa-trophy card-icon"></div>
+                    <h3>MODO TORNEOS REALES</h3>
+                    <p>Simulá la Copa del Mundo, Copa Libertadores o Sudamericana con los grupos oficiales.</p>
+                </div>
+                <div class="menu-card card-purple" onclick="changeScreen('screen-about')">
+                    <div class="card-icon"><i class="fa-solid fa-users"></i></div>
+                    <h3>SOBRE LOS QUESEYO</h3>
+                    <p>Conocé nuestra comunidad, sumate a los streams en vivo y seguinos en todas las redes.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-config" class="app-screen d-none">
+            <div class="config-box">
+                <h2>CONFIGURACIÓN DEL TORNEO</h2>
+
+                <div class="config-step">
+                    <h3>1. Elegí el Estilo de Torneo</h3>
+                    <div class="radio-group">
+                        <button class="btn-select active">Liga</button>
+                        <button class="btn-select">Grupos (Solo Ida)</button>
+                        <button class="btn-select">Grupos (Ida y Vuelta)</button>
+                        <button class="btn-select">Eliminación Directa</button>
+                    </div>
+                </div>
+
+                <div class="config-step">
+                    <h3>2. Modalidad de Partido</h3>
+                    <div class="radio-group">
+                        <button class="btn-select active">📝 Modo Manual</button>
+                        <button class="btn-select">🕹️ Modo Ruleta</button>
+                    </div>
+                </div>
+
+                <div class="config-step">
+                    <h3>3. Anotá los Equipos (un nombre por línea)</h3>
+                    <textarea id="teams-input" placeholder="Equipo 1&#10;Equipo 2&#10;Equipo 3..."></textarea>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-nav btn-back" onclick="changeScreen('screen-menu')">VOLVER</button>
+                    <button class="btn-nav btn-start" onclick="generarTorneo()">GENERAR TORNEO</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-real-tournaments" class="app-screen d-none">
+            <div class="config-box wide-box">
+                <h2>SELECCIONÁ EL TORNEO REAL</h2>
+
+                <div class="menu-grid real-tournaments-grid">
+                    <!-- Tarjeta Copa del Mundo: ACTIVA y con onclick -->
+                    <div class="menu-card card-cyan" onclick="configurarEIniciarMundialReal()">
+                        <div class="card-icon"><i class="fa-solid fa-earth-americas"></i></div>
+                        <h3>COPA DEL MUNDO 2026</h3>
+                        <p>Simulá el mundial con las 48 selecciones clasificadas, grupos oficiales y banderas reales.
+                        </p>
+                    </div>
+
+                    <!-- Tarjeta Libertadores: Deshabilitada estéticamente por ahora -->
+                    <div class="menu-card card-pink disabled-card">
+                        <div class="card-icon"><i class="fa-solid fa-fire"></i></div>
+                        <h3>COPA LIBERTADORES</h3>
+                        <p>Próximamente: Viví la gloria eterna con los mejores clubes de Sudamérica.</p>
+                    </div>
+
+                    <!-- Tarjeta Sudamericana: Deshabilitada estéticamente por ahora -->
+                    <div class="menu-card card-purple disabled-card">
+                        <div class="card-icon"><i class="fa-solid fa-sun"></i></div>
+                        <h3>COPA SUDAMERICANA</h3>
+                        <p>Próximamente: El gran torneo continental con formato oficial.</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="margin-top: 30px;">
+                    <button class="btn-nav btn-back" onclick="changeScreen('screen-menu')">VOLVER AL MENÚ</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="screen-about" class="app-screen d-none">
+            <div class="config-box about-box">
+                <h2>QUESEYO COMMUNITY</h2>
+                <p class="about-desc">¡Bienvenidos al rincón oficial de la comunidad! Acá armamos los mejores torneos,
+                    compartimos directos y bancamos el gaming al mango. Seguinos para no perderte ningún stream.</p>
+
+                <div class="social-links-grid">
+                    <a href="https://twitch.tv/javierknows23" target="_blank" class="social-item twitch-link">
+                        <i class="fa-brands fa-twitch"></i>
+                        <span>Twitch</span>
+                    </a>
+                    <a href="#" target="_blank" class="social-item tiktok-link">
+                        <i class="fa-brands fa-tiktok"></i>
+                        <span>TikTok</span>
+                    </a>
+                    <a href="#" target="_blank" class="social-item discord-link">
+                        <i class="fa-brands fa-discord"></i>
+                        <span>Discord</span>
+                    </a>
+                </div>
+
+                <button class="btn-nav btn-back" style="margin-top: 30px;" onclick="changeScreen('screen-menu')">VOLVER
+                    AL MENÚ</button>
+            </div>
+        </section>
+
+        <section id="screen-tournament-dashboard" class="app-screen d-none">
+            <div class="dashboard-header">
+                <h2 id="tournament-title">PANEL DE CONTROL</h2>
+                <button class="btn-nav btn-back" onclick="changeScreen('screen-menu')">ABANDONAR</button>
+            </div>
+            <div id="tournament-render-area" class="render-area">
+                <p class="placeholder-text">Acá el JavaScript va a dibujar las llaves o las tablas según lo elegido...
+                </p>
+            </div>
+        </section>
+
+    </main>
+    <div id="roulette-modal" class="roulette-overlay d-none">
+        <div class="roulette-box">
+            <h2>RULETA DE LA SUERTE</h2>
+            <div class="wheel-wrapper">
+                <div class="wheel-arrow"><i class="fa-solid fa-caret-down"></i></div>
+
+                <div class="wheel-frame">
+                    <canvas id="canvas-wheel" width="320" height="320"></canvas>
+                </div>
+            </div>
+            <div class="roulette-buttons">
+                <button class="btn-nav btn-back" onclick="cerrarRuleta()">CANCELAR</button>
+                <button class="btn-nav btn-start" id="btn-spin-trigger">¡GIRAR! 🎡</button>
+            </div>
+        </div>
+    </div>
+    <footer class="main-footer">
+        <p>&copy; 2026 Queseyo Community. Todos los derechos reservados.</p>
+        <p class="footer-sub">Diseñado para streamers y fanáticos del fútbol.</p>
+    </footer>
+
+    <!-- ARCHIVOS DE JAVASCRIPT MODULARES -->
+    <script src="js/datosMundial.js"></script>
+
+    <script src="js/ruleta.js"></script>
+    <script src="js/mundialEngine.js"></script>
+    <script src="js/eliminacion.js"></script>
+    <script src="js/liga.js"></script>
+    <script src="js/grupoSoloIda.js"></script>
+    <script src="js/gruposIdayVuelta.js"></script>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

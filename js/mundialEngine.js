@@ -455,7 +455,7 @@ function procesarMejoresTercerosMundial() {
         { id: "16_P5", eq1: todosLosSegundos["A"], eq2: todosLosSegundos["B"] },
         { id: "16_F6", eq1: todosLosPrimeros["F"], eq2: todosLosSegundos["C"] },
         { id: "16_P7", eq1: todosLosPrimeros["A"], eq2: mejoresTerceros[2] },
-        { id: "16_P8", eq1: todosLosPrimeros["L"], eq2: todosLosSegundos[3] },
+        { id: "16_P8", eq1: todosLosPrimeros["L"], eq2: mejoresTerceros[3] },
         { id: "16_P9", eq1: todosLosPrimeros["H"], eq2: todosLosSegundos["J"] },
         { id: "16_P10", eq1: todosLosSegundos["K"], eq2: todosLosSegundos["L"] },
         { id: "16_P11", eq1: todosLosPrimeros["J"], eq2: todosLosSegundos["H"] },

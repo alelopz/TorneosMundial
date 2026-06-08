@@ -496,18 +496,24 @@ function procesarMejoresTercerosMundial() {
     renderizar16avosMundial();
 }
 
-// 2. Renderizador corregido apuntando a 'tournament-render-area'
-function renderizar16avosMundial() {
+function renderizarFaseEliminatoriaMundial(nombreFase) {
     const renderArea = document.getElementById('tournament-render-area');
     if (!renderArea) return;
 
-    // Limpiamos los grupos de la pantalla
     renderArea.innerHTML = "";
 
-    // Cambiamos el encabezado a modo eliminatoria
+    // Títulos personalizados según la fase actual
+    const titulos = {
+        "16avos": "⚡ 16AVOS DE FINAL - MUERTE SÚBITA",
+        "octavos": "🔥 OCTAVOS DE FINAL - ELIMINACIÓN DIRECTA",
+        "cuartos": "🚀 CUARTOS DE FINAL - CAMINO A LA GLORIA",
+        "semis": "👑 SEMIFINALES - PASO A PASO",
+        "final": "🏆 GRAN FINAL DEL MUNDIAL 2026"
+    };
+
     const titleDashboard = document.getElementById('tournament-title');
     if (titleDashboard) {
-        titleDashboard.textContent = "⚡ 16AVOS DE FINAL - MUERTE SÚBITA";
+        titleDashboard.textContent = titulos[nombreFase] || "FASE ELIMINATORIA";
     }
 
     const playoffContainer = document.createElement('div');
@@ -518,7 +524,7 @@ function renderizar16avosMundial() {
     playoffContainer.style.gap = '20px';
     playoffContainer.style.padding = '10px';
 
-    const partidos = appState.tournament.fases["16avos"] || [];
+    const partidos = appState.tournament.fases[nombreFase] || [];
     let htmlPartidos = "";
 
     partidos.forEach((p, index) => {
@@ -527,13 +533,13 @@ function renderizar16avosMundial() {
         const valPen1 = p.penales1 !== null ? p.penales1 : "";
         const valPen2 = p.penales2 !== null ? p.penales2 : "";
 
-        // Si hay empate manual, mostramos los casilleros de penales con condicional inline
+        // Condicional para mostrar los cuadritos de penales si hay empate manual
         const mostrarPenales = (p.goles1 !== null && p.goles2 !== null && p.goles1 === p.goles2) ? 'flex' : 'none';
 
         htmlPartidos += `
             <div class="match-card match-neon-playoff" style="background: #111219; border: 2px solid #00f2fe; border-radius: 8px; padding: 15px; box-shadow: 0 0 10px rgba(0, 242, 254, 0.2); position: relative;">
-                <div style="position: absolute; top: 5px; right: 10px; font-size: 0.75rem; color: #666; font-weight: bold;">
-                    PARTIDO ${index + 1}
+                <div style="position: absolute; top: 5px; right: 10px; font-size: 0.75rem; color: #666; font-weight: bold; text-transform: uppercase;">
+                    ${nombreFase} - P${index + 1}
                 </div>
                 
                 <div class="teams-container" style="display: flex; flex-direction: column; gap: 12px; margin-top: 5px;">
@@ -545,10 +551,10 @@ function renderizar16avosMundial() {
                         <div style="display: flex; gap: 5px; align-items: center;">
                             <input type="number" placeholder="P" value="${valPen1}" min="0" 
                                 style="width: 30px; text-align: center; background: #000; border: 1px solid #ff007f; color: #ff007f; font-size:0.8rem; font-weight: bold; border-radius: 4px; display: ${mostrarPenales};"
-                                onchange="guardarPenales16avos('${p.id}', 1, this.value)">
+                                onchange="guardarPenalesPlayoffs('${nombreFase}', '${p.id}', 1, this.value)">
                             <input type="number" class="score-input" value="${valGoles1}" min="0" 
                                 style="width: 45px; text-align: center; background: #000; border: 1px solid #00f2fe; color: #fff; font-weight: bold; border-radius: 4px;"
-                                onchange="guardarGoles16avosMundial('${p.id}', 1, this.value)">
+                                onchange="guardarGolesPlayoffs('${nombreFase}', '${p.id}', 1, this.value)">
                         </div>
                     </div>
 
@@ -560,17 +566,17 @@ function renderizar16avosMundial() {
                         <div style="display: flex; gap: 5px; align-items: center;">
                             <input type="number" placeholder="P" value="${valPen2}" min="0" 
                                 style="width: 30px; text-align: center; background: #000; border: 1px solid #ff007f; color: #ff007f; font-size:0.8rem; font-weight: bold; border-radius: 4px; display: ${mostrarPenales};"
-                                onchange="guardarPenales16avos('${p.id}', 2, this.value)">
+                                onchange="guardarPenalesPlayoffs('${nombreFase}', '${p.id}', 2, this.value)">
                             <input type="number" class="score-input" value="${valGoles2}" min="0" 
                                 style="width: 45px; text-align: center; background: #000; border: 1px solid #00f2fe; color: #fff; font-weight: bold; border-radius: 4px;"
-                                onchange="guardarGoles16avosMundial('${p.id}', 2, this.value)">
+                                onchange="guardarGolesPlayoffs('${nombreFase}', '${p.id}', 2, this.value)">
                         </div>
                     </div>
                 </div>
 
                 <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
                     <button class="btn-ruleta-neón-mundial" title="Girar Ruleta Muerte Súbita" style="background:none; border:none; font-size:1.3rem; cursor:pointer;"
-                        onclick="abrirRuleta16avosMundial('${p.id}')">
+                        onclick="abrirRuletaPlayoffs('${nombreFase}', '${p.id}')">
                         🎡
                     </button>
                 </div>
@@ -580,47 +586,132 @@ function renderizar16avosMundial() {
 
     playoffContainer.innerHTML = htmlPartidos;
     renderArea.appendChild(playoffContainer);
+
+    // 🔥 BOTÓN NEÓN DINÁMICO PARA AVANZAR: Solo aparece si todos los partidos de la ronda tienen un ganador definido
+    const listoParaAvanzar = partidos.every(p => determinarGanadorPartido(p) !== null);
+
+    if (listoParaAvanzar && nombreFase !== "final") {
+        const contenedorAcciones = document.createElement('div');
+        contenedorAcciones.style.width = '100%';
+        contenedorAcciones.style.display = 'flex';
+        contenedorAcciones.style.justify = 'center';
+        contenedorAcciones.style.marginTop = '30px';
+
+        const btnAvanzar = document.createElement('button');
+        btnAvanzar.className = 'btn-neon-mundial-action';
+
+        const textosBotones = {
+            "16avos": "🚀 GENERAR OCTAVOS DE FINAL",
+            "octavos": "🔥 GENERAR CUARTOS DE FINAL",
+            "cuartos": "👑 GENERAR SEMIFINALES",
+            "semis": "🏆 GENERAR GRAN FINAL"
+        };
+
+        btnAvanzar.innerHTML = textosBotones[nombreFase] || "AVANZAR DE RONDA";
+        btnAvanzar.onclick = () => avanzarSiguienteRondaMundial(nombreFase);
+
+        contenedorAcciones.appendChild(btnAvanzar);
+        renderArea.appendChild(contenedorAcciones);
+    }
 }
 
-// 3. Manejo de goles manuales en los 16avos
-function guardarGoles16avosMundial(partidoId, nroEquipo, valor) {
+// Cambiamos el renderizador inicial de 16avos para usar la nueva estructura común
+function renderizar16avosMundial() {
+    renderizarFaseEliminatoriaMundial("16avos");
+}
+
+// Auxiliar para saber quién ganó un partido (contando goles y desempate por penales)
+function determinarGanadorPartido(p) {
+    if (p.goles1 === null || p.goles2 === null) return null;
+    if (p.goles1 > p.goles2) return { nombre: p.equipo1, flag: p.flag1 };
+    if (p.goles1 < p.goles2) return { nombre: p.equipo2, flag: p.flag2 };
+
+    // Si hay empate en goles, mandan los penales manuales
+    if (p.penales1 !== null && p.penales2 !== null) {
+        if (p.penales1 > p.penales2) return { nombre: p.equipo1, flag: p.flag1 };
+        if (p.penales1 < p.penales2) return { nombre: p.equipo2, flag: p.flag2 };
+    }
+    return null; // Sigue en empate técnico sin resolver
+}
+
+// LÓGICA DE AVANCE: Agarra los ganadores en orden y los empareja en la siguiente ronda fijos
+function avanzarSiguienteRondaMundial(faseActual) {
+    const ordenFases = ["16avos", "octavos", "cuartos", "semis", "final"];
+    const indexActual = ordenFases.indexOf(faseActual);
+    const siguienteFase = ordenFases[indexActual + 1];
+
+    const partidosActuales = appState.tournament.fases[faseActual];
+    const ganadores = partidosActuales.map(p => determinarGanadorPartido(p));
+
+    const partidosSiguienteRonda = [];
+
+    // Como avanzan la mitad de equipos, agrupamos a los ganadores de a pares:
+    // Ganador P1 vs Ganador P2, Ganador P3 vs Ganador P4, etc.
+    for (let i = 0; i < ganadores.length; i += 2) {
+        const g1 = ganadores[i];
+        const g2 = ganadores[i + 1];
+        const nroPartido = (i / 2) + 1;
+
+        partidosSiguienteRonda.push({
+            id: `${siguienteFase}_P${nroPartido}`,
+            equipo1: g1.nombre,
+            flag1: g1.flag,
+            goles1: null,
+            penales1: null,
+            equipo2: g2.nombre,
+            flag2: g2.flag,
+            goles2: null,
+            penales2: null
+        });
+    }
+
+    // Guardamos en la memoria global y saltamos de fase
+    appState.tournament.fases[siguienteFase] = partidosSiguienteRonda;
+    appState.tournament.faseActual = siguienteFase;
+
+    // Renderizamos la nueva fase en pantalla
+    renderizarFaseEliminatoriaMundial(siguienteFase);
+}
+
+// Guardado de goles dinámico para cualquier fase eliminatoria
+function guardarGolesPlayoffs(fase, partidoId, nroEquipo, valor) {
     const goles = valor === "" ? null : parseInt(valor, 10);
-    const partido = appState.tournament.fases["16avos"].find(p => p.id === partidoId);
+    const partido = appState.tournament.fases[fase].find(p => p.id === partidoId);
 
     if (partido) {
         if (nroEquipo === 1) partido.goles1 = goles;
-        else if (nroEquipo === 2) p.goles2 = goles;
+        else if (nroEquipo === 2) partido.goles2 = goles;
 
-        // Reset de penales si el resultado deja de ser empate
+        // Si el resultado ya no es empate, borramos los penales viejos por seguridad
         if (partido.goles1 !== partido.goles2) {
             partido.penales1 = null;
             partido.penales2 = null;
         }
-        renderizer16avosMundial();
+        renderizarFaseEliminatoriaMundial(fase);
     }
 }
 
-// 4. Guardado de los penales manuales
-function guardarPenales16avos(partidoId, nroEquipo, valor) {
+// Guardado de penales dinámico
+function guardarPenalesPlayoffs(fase, partidoId, nroEquipo, valor) {
     const penales = valor === "" ? null : parseInt(valor, 10);
-    const partido = appState.tournament.fases["16avos"].find(p => p.id === partidoId);
+    const partido = appState.tournament.fases[fase].find(p => p.id === partidoId);
     if (partido) {
         if (nroEquipo === 1) partido.penales1 = penales;
         else if (nroEquipo === 2) partido.penales2 = penales;
+        renderizarFaseEliminatoriaMundial(fase);
     }
 }
 
-// 5. Apertura de ruleta en modo Eliminatoria (50/50 - Sin Empate)
-function abrirRuleta16avosMundial(partidoId) {
-    const partido = appState.tournament.fases["16avos"].find(p => p.id === partidoId);
+// Apertura de la ruleta genérica para playoffs
+function abrirRuletaPlayoffs(fase, partidoId) {
+    const partido = appState.tournament.fases[fase].find(p => p.id === partidoId);
     if (partido) {
-        // Pasamos false al final para que dibujarRuletaCanvas use el modo 50/50 cian/rosa
-        abrirRuletaGeneral(partido, partidoId, 'gatillarGiroRuleta16avos()', false);
+        abrirRuletaGeneral(partido, partidoId, 'gatillarGiroRuletaPlayoffs()', false);
     }
 }
 
-// 6. Animación y lógica para el giro de los 16avos (Muerte súbita en goles)
-function gatillarGiroRuleta16avos() {
+// Animación y resolución del giro de la ruleta para cualquier playoff (50/50)
+function gatillarGiroRuletaPlayoffs() {
     ejecutarAnimacionRuleta((gradosRandom) => {
         let golesLocal = 0;
         let golesVisitante = 0;
@@ -628,19 +719,17 @@ function gatillarGiroRuleta16avos() {
         const anguloDetenido = gradosRandom % 360;
         const anguloReal = (270 - anguloDetenido + 360) % 360;
 
-        // Mitad perfecta del canvas (0° a 180° Local | 180° a 360° Visitante)
         if (anguloReal < 180) {
-            // Gana Local sí o sí
             golesLocal = Math.floor(Math.random() * 3) + 1;
             golesVisitante = Math.floor(Math.random() * golesLocal);
         } else {
-            // Gana Visitante sí o sí
             golesVisitante = Math.floor(Math.random() * 3) + 1;
             golesLocal = Math.floor(Math.random() * golesVisitante);
         }
 
+        const fase = appState.tournament.faseActual;
         const pId = appState.ruletaActiva.partidoId;
-        const partido = appState.tournament.fases["16avos"].find(p => p.id === pId);
+        const partido = appState.tournament.fases[fase].find(p => p.id === pId);
 
         if (partido) {
             partido.goles1 = golesLocal;
@@ -649,7 +738,6 @@ function gatillarGiroRuleta16avos() {
             partido.penales2 = null;
         }
 
-        // Refrescamos la pantalla neón de play-offs
-        renderizar16avosMundial();
+        renderizarFaseEliminatoriaMundial(fase);
     });
 }
